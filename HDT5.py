@@ -5,17 +5,29 @@ import time
 
 
 # Constants
-CSV_FILE = 'Process_time_I1.csv'
+CSV_FILE = 'Process_time.csv'
 
 Inter_process = 3
-CPU_SIZE = 1
+CPU_SIZE = 2
 RAM_SIZE = 100
-Interval = 1
-NUM_PROCESS = 200
+Interval = 10
+NUM_PROCESS = 25
+
 TimeAv = []
 random.seed(10)
 Process_time = []
 
+def save_to_csv(data, filename):
+    print(f'Average time: {sum(TimeAv) / len(TimeAv)}')
+    print(f'Standar Deviation: {round((sum((x - (sum(TimeAv) / len(TimeAv))) ** 2 for x in TimeAv) / len(TimeAv)) ** 0.5, 4)}')
+    Process_time.append(NUM_PROCESS)
+    Process_time.append(sum(TimeAv) / len(TimeAv))
+    Process_time.append(round((sum((x - (sum(TimeAv) / len(TimeAv))) ** 2 for x in TimeAv) / len(TimeAv)) ** 0.5, 4))
+
+    # Append the average time and Standar Deviation of the process to the CSV file
+    with open(CSV_FILE, 'a') as file:
+        file.write(f'{Process_time[0]},{Process_time[1]},{Process_time[2]}\n')
+        file.close()
 
 # Function to simulate process solving
 def process(env, proc_id, instructions, CPU, RAM, RAM_usage,Start,NUM_PROCESS):
@@ -79,13 +91,6 @@ RAM = simpy.Container(env, init=RAM_SIZE, capacity=RAM_SIZE)
 CPU = simpy.Resource(env, capacity=CPU_SIZE)
 env.process(generate_process(env, CPU, RAM, NUM_PROCESS))
 env.run()
+save_to_csv(TimeAv, CSV_FILE)
 
-# Print the average time of the process
-print(f'Average time: {sum(TimeAv) / len(TimeAv)}')
-Process_time.append(NUM_PROCESS)
-Process_time.append(sum(TimeAv) / len(TimeAv))
 
-# Append the average time of the process to the CSV file
-with open(CSV_FILE, 'a') as file:
-    file.write(f'{Process_time[0]},{Process_time[1]}\n')
-    file.close()
